@@ -30,6 +30,9 @@ const Ids = {
       SHORTS_CTA_BUTTON: 'shorts-button',
   
       MFTAB_FUND_DETAILS: 'mf-details-tab-fund-details',
+  
+      PERSON_OUTLET: 'side-menu-person-outlet',
+      VIEW_MORE: 'perfs-view-more',
     },
     INPUT_FIELDS: {
       PHONE_NUM: 'phone-num',
@@ -57,7 +60,6 @@ const Ids = {
       MF_PERF_SCREEN: 'mf-perf-screen',
       STOCK_PERF_SCREEN: 'equity-perf-screen',
       MF_DETAILS_TAB: 'mf-details-tab',
-      LOGIN_SCREEN: 'login-screen',
     },
     COMPONENTS: {
       MESSAGE_REQUEST: 'message-request',
