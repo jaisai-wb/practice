@@ -1,0 +1,88 @@
+# A descriptive name for the workflow, shown in the GitHub Actions UI
+name: Run Maestro E2E Tests 🧪
+
+# Controls when the workflow will run
+on:
+  # Trigger on pushes to the main branch
+  push:
+    branches: ['main']
+  # Trigger on pull requests targeting the main branch
+  pull_request:
+    branches: ['main']
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # The main job for running the tests
+  run-maestro-tests:
+    # A more descriptive name for the job in the UI
+    name: 'Run Android E2E Tests on Linux'
+
+    # Use ubuntu-latest, which is generally faster and more cost-effective.
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository code so the workflow can access it
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js (if your project requires it, otherwise this can be removed)
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Set up Java, which is required for the Android toolchain
+      - name: 'Set up Java (JDK)'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 4. Enable KVM for hardware acceleration on Linux runners
+      - name: 'Enable KVM'
+        run: |
+          # Create the directory if it doesn't exist to make the script more robust
+          sudo mkdir -p /etc/udev/rules.d
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # 5. Create and run an Android Virtual Device (AVD)
+      - name: 'Create and run emulator'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          # API level for Android 14 ("UpsideDownCake")
+          api-level: 34
+          target: google_apis
+          # Use x86_64 for standard GitHub-hosted Linux runners
+          arch: x86_64
+          avd-name: TestAVD
+          # This script runs after the emulator is fully booted and ready for tests
+          script: echo "Emulator is ready."
+
+      # 6. Install the Maestro CLI
+      - name: 'Install Maestro'
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      # 7. Download the APK from the specified GitHub Release
+      - name: 'Download Release APK'
+        run: |
+          APK_URL="https://github.com/Wealth-Beacon/chatapp/releases/download/v0.0.6.e2e/app-debug.apk"
+          curl -L --fail -o app-debug.apk "$APK_URL"
+        # The '--fail' flag ensures the step fails if the download URL returns an error (e.g., 404)
+
+      # 8. Run the Maestro test flows against the downloaded APK
+    #   - name: 'Run Maestro Flows'
+    #     run: maestro test --output maestro-report e2e/tests.yaml
+
+      # 9. Upload the Maestro test report as a build artifact
+      # This step will run even if the previous steps fail, ensuring you always get a report.
+      - name: 'Upload Maestro Report'
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-report
+          path: maestro-report/
