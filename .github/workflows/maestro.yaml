@@ -27,11 +27,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: 'Install Emulator Requirements'
-        run: sudo apt-get update && sudo apt-get install -y \
-          libvirt-daemon-system libvirt-clients bridge-utils qemu-kvm \
-          libglu1-mesa libxi6 libxrender1 libxtst6 mesa-utils \
-          libvulkan1 libxcb-xinerama0
+      - name: 'Install emulator requirements'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-kvm libvirt-daemon-system bridge-utils \
+            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 libxcb-xinerama0
 
       - name: 'Enable KVM'
         run: |
