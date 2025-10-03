@@ -11,15 +11,11 @@ jobs:
   run-maestro-tests:
     name: 'Run Android E2E Tests on Linux'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
-
-      - name: 'Set up Node.js'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
 
       - name: 'Set up Java (JDK)'
         uses: actions/setup-java@v4
@@ -27,80 +23,97 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # -----------------------
-      # Cache Android SDK & Maestro
-      # -----------------------
-      - name: Cache Android SDK and Maestro
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.android
-            ~/.maestro
-          key: android-maestro-${{ runner.os }}-v1
-
-      - name: 'Install emulator dependencies'
+      - name: 'Free up disk space'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-kvm libvirt-daemon-system bridge-utils \
-            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 \
-            libxcb-xinerama0 libx11-6
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo apt-get clean
+          df -h
 
       - name: 'Enable KVM'
         run: |
-          sudo mkdir -p /etc/udev/rules.d
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # -----------------------
-      # Emulator & Maestro Tests
-      # -----------------------
-      - name: 'Run Emulator & Maestro Tests'
+      - name: 'AVD cache'
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-34
+
+      - name: 'Create AVD and generate snapshot for caching'
+        if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           target: google_apis
           arch: x86_64
-          avd-name: TestAVD
-          emulator-options: -no-window -no-audio
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: 'Download APK from Google Drive'
+        run: |
+          FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
+          FILE_NAME="app-debug.apk"
+          curl -L "https://drive.google.com/uc?export=download&id=${FILE_ID}" -o "$FILE_NAME"
+          ls -lh "$FILE_NAME"
+
+      - name: 'Install Maestro CLI'
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: 'Run Maestro E2E Tests'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           script: |
-            #!/bin/bash
-            adb wait-for-device
-            bootcomplete=""
-            until [ "$bootcomplete" = "1" ]; do
-              bootcomplete=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-              sleep 2
-            done
-
-            # Unlock emulator
+            set -e
+            
+            echo "==> Waiting for device to be ready..."
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
+            
+            echo "==> Device is ready, waiting 10 more seconds for stability..."
+            sleep 10
+            
+            echo "==> Unlocking device..."
             adb shell input keyevent 82
-
-            # Disable animations
-            adb shell settings put global window_animation_scale 0.0
-            adb shell settings put global transition_animation_scale 0.0
-            adb shell settings put global animator_duration_scale 0.0
-
-            # Download APK (no caching)
-            FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
-            FILE_NAME="app-debug.apk"
-            curl -L --fail -o "$FILE_NAME" "https://drive.google.com/uc?export=download&id=${FILE_ID}"
-
-            # Install APK
-            adb install -r "$FILE_NAME"
-
-            # Install Maestro CLI (cached if available)
-            curl -Ls "https://get.maestro.mobile.dev" | bash
-            export PATH="$PATH:$HOME/.maestro/bin"
-
-            # Run Maestro tests
+            adb shell input keyevent 4
+            
+            echo "==> Installing APK..."
+            adb install -r app-debug.apk
+            
+            echo "==> Verifying Maestro installation..."
+            maestro --version
+            
+            echo "==> Running Maestro tests..."
             maestro test --output maestro-report e2e/tests.yaml
 
-      # -----------------------
-      # Upload Report
-      # -----------------------
-      - name: 'Upload Maestro Report'
+      - name: 'Upload Maestro Test Results'
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-report
+          name: maestro-test-results
           path: maestro-report/
+          retention-days: 7
+
+      - name: 'Upload test results summary'
+        if: always()
+        run: |
+          if [ -d "maestro-report" ]; then
+            echo "### 🧪 Maestro Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Test execution completed. Check the artifacts for detailed results." >> $GITHUB_STEP_SUMMARY
+          fi
