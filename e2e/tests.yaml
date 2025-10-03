@@ -1,0 +1,18 @@
+env:
+  APP_ID: 'money.otto.app'
+appId: ${APP_ID}
+---
+- launchApp
+
+# - runScript: ../src/constant/Ids.mjs
+
+- assertVisible:
+    id: 'login-screen'
+    optional: true
+# - runFlow: auth/login.yaml
+# # - runFlow: onboarding/reset.yaml
+# - runFlow: fhd/Overview.yaml
+# - runFlow: fhd/Metrics.yaml
+# - runFlow: fhd/Perfs.yaml
+# - runFlow: Logout.yaml
+# - stopApp: 'false'

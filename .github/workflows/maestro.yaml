@@ -1,0 +1,73 @@
+name: Run Maestro E2E Tests 🧪
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  run-maestro-tests:
+    name: 'Run Android E2E Tests on Linux'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 'Set up Java (JDK)'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 'Enable KVM'
+        run: |
+          sudo mkdir -p /etc/udev/rules.d
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: 'Run Emulator & Maestro Tests'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          avd-name: TestAVD
+          emulator-options: -no-window -no-audio
+          script: |
+            # Wait for emulator to fully boot
+            adb wait-for-device
+            adb shell getprop sys.boot_completed | grep 1
+
+            # Download APK
+            FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
+            FILE_NAME="app-debug.apk"
+            curl -L --fail -o "$FILE_NAME" "https://drive.google.com/uc?export=download&id=${FILE_ID}"
+
+            # Install APK on emulator
+            adb install -r "$FILE_NAME"
+
+            # Install Maestro CLI
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+            export PATH="$PATH:$HOME/.maestro/bin"
+
+            # Verify emulator is connected
+            adb devices
+
+            # Run Maestro tests
+            maestro test --output maestro-report e2e/tests.yaml
+
+      - name: 'Upload Maestro Report'
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-report
+          path: maestro-report/
