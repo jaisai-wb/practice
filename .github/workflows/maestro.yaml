@@ -27,6 +27,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 'Install Emulator Requirements'
+        run: sudo apt-get update && sudo apt-get install -y \
+          libvirt-daemon-system libvirt-clients bridge-utils qemu-kvm \
+          libglu1-mesa libxi6 libxrender1 libxtst6 mesa-utils \
+          libvulkan1 libxcb-xinerama0
+
       - name: 'Enable KVM'
         run: |
           sudo mkdir -p /etc/udev/rules.d
@@ -45,21 +51,27 @@ jobs:
           script: |
             # Wait for emulator to fully boot
             adb wait-for-device
-            adb shell getprop sys.boot_completed | grep 1
+            bootcomplete=""
+            until [[ "$bootcomplete" == "1" ]]; do
+              bootcomplete=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+              sleep 2
+            done
+            # Unlock the emulator screen
+            adb shell input keyevent 82
 
             # Download APK
             FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
             FILE_NAME="app-debug.apk"
             curl -L --fail -o "$FILE_NAME" "https://drive.google.com/uc?export=download&id=${FILE_ID}"
 
-            # Install APK on emulator
+            # Install APK
             adb install -r "$FILE_NAME"
 
             # Install Maestro CLI
             curl -Ls "https://get.maestro.mobile.dev" | bash
             export PATH="$PATH:$HOME/.maestro/bin"
 
-            # Verify emulator is connected
+            # Verify device connection
             adb devices
 
             # Run Maestro tests
