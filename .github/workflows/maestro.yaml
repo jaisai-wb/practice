@@ -27,11 +27,23 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: 'Install emulator requirements'
+      # -----------------------
+      # Caching Android SDK and Maestro
+      # -----------------------
+      - name: Cache Android SDK
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.android
+            ~/.maestro
+          key: android-sdk-${{ runner.os }}-v1
+
+      - name: 'Install emulator dependencies'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-kvm libvirt-daemon-system bridge-utils \
-            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 libxcb-xinerama0
+            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 libxcb-xinerama0 \
+            libx11-6
 
       - name: 'Enable KVM'
         run: |
@@ -40,6 +52,9 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # -----------------------
+      # Emulator & Maestro Tests
+      # -----------------------
       - name: 'Run Emulator & Maestro Tests'
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -59,24 +74,35 @@ jobs:
             # Unlock the emulator screen
             adb shell input keyevent 82
 
-            # Download APK
+            # Download APK (not cached)
             FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
             FILE_NAME="app-debug.apk"
             curl -L --fail -o "$FILE_NAME" "https://drive.google.com/uc?export=download&id=${FILE_ID}"
 
+            # Verify APK download
+            if [[ ! -f "$FILE_NAME" ]]; then
+              echo "APK download failed"
+              exit 1
+            fi
+
             # Install APK
             adb install -r "$FILE_NAME"
 
-            # Install Maestro CLI
-            curl -Ls "https://get.maestro.mobile.dev" | bash
+            # Install Maestro CLI (cached)
+            if [ ! -d "$HOME/.maestro/bin" ]; then
+              curl -Ls "https://get.maestro.mobile.dev" | bash
+            fi
             export PATH="$PATH:$HOME/.maestro/bin"
 
-            # Verify device connection
+            # Verify emulator is connected
             adb devices
 
             # Run Maestro tests
             maestro test --output maestro-report e2e/tests.yaml
 
+      # -----------------------
+      # Upload Report
+      # -----------------------
       - name: 'Upload Maestro Report'
         if: always()
         uses: actions/upload-artifact@v4
