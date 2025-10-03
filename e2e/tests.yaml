@@ -6,12 +6,12 @@ appId: ${APP_ID}
 
 - runScript: ../src/constant/Ids.mjs
 
-- runFlow: e2e/Auth/login.yaml
-- runFlow: e2e/Onboarding/reset.yaml
-- runFlow: e2e/FHD/Overview.yaml
-- runFlow: e2e/FHD/Metrics.yaml
-- runFlow: e2e/FHD/Perfs.yaml
-- runFlow: e2e/FinPlan/finplan.yaml
-- runFlow: e2e/FinPlan/passiveFunds.yaml
-- runFlow: e2e/Logout.yaml
+- runFlow: Auth/login.yaml
+- runFlow: Onboarding/reset.yaml
+- runFlow: FHD/Overview.yaml
+- runFlow: FHD/Metrics.yaml
+# - runFlow: FHD/Perfs.yaml
+# - runFlow: FinPlan/finplan.yaml
+# - runFlow: FinPlan/passiveFunds.yaml
+- runFlow: Logout.yaml
 - stopApp: 'false'

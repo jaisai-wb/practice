@@ -57,6 +57,7 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
 
@@ -103,6 +104,7 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
             set -e
@@ -124,7 +126,7 @@ jobs:
             maestro --version
             
             echo "==> Running Maestro tests..."
-            maestro test --output maestro-report e2e/tests.yaml
+            maestro test --format junit --output maestro-report e2e/tests.yaml
 
       - name: 'Upload Maestro Test Results'
         if: always()
