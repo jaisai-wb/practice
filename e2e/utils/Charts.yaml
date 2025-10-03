@@ -2,6 +2,8 @@ appId: ${APP_ID}
 ---
 - tapOn:
     id: ${output.env.PERF}
+- tapOn:
+    id: ${output.ids.BUTTONS.VIEW_MORE}
 
 - extendedWaitUntil:
     visible:
@@ -10,7 +12,7 @@ appId: ${APP_ID}
 
 - extendedWaitUntil:
     visible:
-      id: ${output.PERF_YEAR_TO_CHART[output.PERF_YEARS.FIVE_YR]}
+      id: ${output.PERF_YEAR_TO_CHART[output.PERF_YEARS.ALL_YR]}
     timeout: 30000
 
 - evalScript: ${output.env.BUTTONID = output.PERF_YEARS.ONE_YR}
@@ -25,8 +27,8 @@ appId: ${APP_ID}
 - runFlow:
     file: TapWait.yaml
 
-- evalScript: ${output.env.BUTTONID = output.PERF_YEARS.ALL_YR}
-- evalScript: ${output.env.CHARTID = output.PERF_YEAR_TO_CHART[output.PERF_YEARS.ALL_YR]}
+- evalScript: ${output.env.BUTTONID = output.PERF_YEARS.FIVE_YR}
+- evalScript: ${output.env.CHARTID = output.PERF_YEAR_TO_CHART[output.PERF_YEARS.FIVE_YR]}
 
 - runFlow:
     file: TapWait.yaml

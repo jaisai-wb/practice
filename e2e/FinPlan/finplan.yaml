@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+---
+- evalScript: ${output.currentQuery = 'setup my financial plan'}
+- runFlow: ../utils/chatrequest.yaml
+
+- evalScript: ${output.currentQuery = 'I am married'}
+- runFlow: ../utils/chatrequest.yaml
+
+- evalScript: ${output.currentQuery = "My wife's name is Mary and she's 25 years old"}
+- runFlow: ../utils/chatrequest.yaml
+
+- evalScript: ${output.currentQuery =  'John is my 2 years old son'}
+- runFlow: ../utils/chatrequest.yaml
+
+- evalScript: ${output.currentQuery = "I'm Peter and I am 25 years old"}
+- runFlow: ../utils/chatrequest.yaml
+
+- evalScript: ${output.currentQuery = 'My desired retirement age is 45. I do not own a house'}
+- tapOn:
+    id: ${output.ids.INPUT_FIELDS.CHAT_INPUT}
+- inputText: ${output.currentQuery}
+- tapOn:
+    id: ${output.ids.BUTTONS.SEND_QUERY}
+- evalScript: ${output.env.counter++}
+
+- runFlow: ../utils/goalSaving.yaml
+- scroll

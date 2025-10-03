@@ -11,6 +11,9 @@ appId: ${APPID}
 - tapOn:
     id: ${output.ids.BUTTONS.LEFT_NAV}
 - tapOn:
+    id: ${output.ids.BUTTONS.PERSON_OUTLET}
+
+- tapOn:
     id: ${output.ids.BUTTONS.LOG_OUT}
 
 - tapOn:

@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: ${output.ids.INPUT_FIELDS.CHAT_INPUT}
+- inputText: ${output.currentQuery}
+- tapOn:
+    id: ${output.ids.BUTTONS.SEND_QUERY}
+- tapOn:
+    id: ${output.ids.SCREEN.CHAT_SCREEN}
+- assertVisible:
+    id: 'message-response${output.env.counter}'
+    optional: true
+- evalScript: ${output.env.counter++}
