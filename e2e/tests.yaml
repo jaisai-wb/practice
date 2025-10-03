@@ -9,10 +9,10 @@ appId: ${APP_ID}
 - assertVisible:
     id: ${output.ids.SCREEN.LOGIN_SCREEN}
     optional: true
-# - runFlow: auth/login.yaml
-# # - runFlow: onboarding/reset.yaml
-# - runFlow: fhd/Overview.yaml
-# - runFlow: fhd/Metrics.yaml
-# - runFlow: fhd/Perfs.yaml
-# - runFlow: Logout.yaml
-# - stopApp: 'false'
+- runFlow: auth/login.yaml
+- runFlow: onboarding/reset.yaml
+- runFlow: fhd/Overview.yaml
+- runFlow: fhd/Metrics.yaml
+- runFlow: fhd/Perfs.yaml
+- runFlow: Logout.yaml
+- stopApp: 'false'
