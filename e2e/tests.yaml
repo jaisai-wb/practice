@@ -6,11 +6,11 @@ appId: ${APP_ID}
 
 - runScript: ../src/constant/Ids.mjs
 
-- runFlow: auth/login.yaml
-- runFlow: onboarding/reset.yaml
-- runFlow: fhd/Overview.yaml
-- runFlow: fhd/Metrics.yaml
-- runFlow: fhd/Perfs.yaml
+- runFlow: Auth/login.yaml
+- runFlow: Onboarding/reset.yaml
+- runFlow: FHD/Overview.yaml
+- runFlow: FHD/Metrics.yaml
+- runFlow: FHD/Perfs.yaml
 - runFlow: FinPlan/finplan.yaml
 - runFlow: FinPlan/passiveFunds.yaml
 - runFlow: Logout.yaml
