@@ -70,7 +70,7 @@ jobs:
       # 7. Download the APK from the specified GitHub Release
       - name: 'Download Release APK'
         run: |
-          APK_URL="https://github.com/Wealth-Beacon/chatapp/releases/download/v0.0.6.e2e/app-debug.apk"
+          APK_URL="https://github.com/Wealth-Beacon/chatapp/releases/tag/v0.0.6.e2e"
           curl -L --fail -o app-debug.apk "$APK_URL"
         # The '--fail' flag ensures the step fails if the download URL returns an error (e.g., 404)
 
