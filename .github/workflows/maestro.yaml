@@ -28,22 +28,22 @@ jobs:
           java-version: '17'
 
       # -----------------------
-      # Caching Android SDK and Maestro
+      # Cache Android SDK & Maestro
       # -----------------------
-      - name: Cache Android SDK
+      - name: Cache Android SDK and Maestro
         uses: actions/cache@v3
         with:
           path: |
             ~/.android
             ~/.maestro
-          key: android-sdk-${{ runner.os }}-v1
+          key: android-maestro-${{ runner.os }}-v1
 
       - name: 'Install emulator dependencies'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-kvm libvirt-daemon-system bridge-utils \
-            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 libxcb-xinerama0 \
-            libx11-6
+            libxi6 libxrender1 libxtst6 mesa-utils libglu1-mesa libvulkan1 \
+            libxcb-xinerama0 libx11-6
 
       - name: 'Enable KVM'
         run: |
@@ -64,38 +64,33 @@ jobs:
           avd-name: TestAVD
           emulator-options: -no-window -no-audio
           script: |
-            # Wait for emulator to fully boot
+            #!/bin/bash
             adb wait-for-device
             bootcomplete=""
-            until [[ "$bootcomplete" == "1" ]]; do
+            until [ "$bootcomplete" = "1" ]; do
               bootcomplete=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
               sleep 2
             done
-            # Unlock the emulator screen
+
+            # Unlock emulator
             adb shell input keyevent 82
 
-            # Download APK (not cached)
+            # Disable animations
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
+
+            # Download APK (no caching)
             FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
             FILE_NAME="app-debug.apk"
             curl -L --fail -o "$FILE_NAME" "https://drive.google.com/uc?export=download&id=${FILE_ID}"
 
-            # Verify APK download
-            if [[ ! -f "$FILE_NAME" ]]; then
-              echo "APK download failed"
-              exit 1
-            fi
-
             # Install APK
             adb install -r "$FILE_NAME"
 
-            # Install Maestro CLI (cached)
-            if [ ! -d "$HOME/.maestro/bin" ]; then
-              curl -Ls "https://get.maestro.mobile.dev" | bash
-            fi
+            # Install Maestro CLI (cached if available)
+            curl -Ls "https://get.maestro.mobile.dev" | bash
             export PATH="$PATH:$HOME/.maestro/bin"
-
-            # Verify emulator is connected
-            adb devices
 
             # Run Maestro tests
             maestro test --output maestro-report e2e/tests.yaml
