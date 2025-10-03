@@ -1,0 +1,46 @@
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.ASSET_ALLOCATION}
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.EQUITY_BREAKUP}
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SUGGESTION_CHIP}0
+- assertVisible:
+    text: 'Strategy: Passive'
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.FUND_ALLOCATION}
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SUGGESTION_CHIP}0
+- assertVisible:
+    text: 'Strategy: Active'
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.FUND_ALLOCATION}
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SUGGESTION_CHIP}1
+- scroll
+- tapOn:
+    id: ${output.ids.BUTTONS.SUGGESTION_CHIP}1
+- assertVisible:
+    text: 'Strategy: Passive'
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.FUND_ALLOCATION}
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SUGGESTION_CHIP}0
+- assertVisible:
+    text: 'Strategy: Active'
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.FUND_ALLOCATION}
+- scroll

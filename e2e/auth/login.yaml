@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+env:
+  PHONE: '2000000002'
+  OTP: '900002'
+
+---
+- tapOn:
+    id: ${output.ids.INPUT_FIELDS.PHONE_NUM}
+
+- inputText:
+    id: ${output.ids.INPUT_FIELDS.PHONE_NUM}
+    text: ${PHONE}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SEND_OTP}
+
+- assertVisible:
+    id: ${output.ids.BUTTONS.VALIDATE_OTP}
+
+- inputText:
+    id: ${output.ids.BUTTONS.VALIDATE_OTP}
+    text: ${OTP}
+
+- assertVisible:
+    id: ${output.ids.SCREEN.HOME_SCREEN}
+# uncomment the below code to land on fhd before the next file
+# - tapOn:
+#     id: ${output.ids.BUTTONS.LEFT_NAV}
+
+# - tapOn:
+#     id: ${output.ids.BUTTONS.FHD_BUTTON}

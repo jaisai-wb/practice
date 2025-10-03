@@ -1,0 +1,38 @@
+appId: 'money.otto.app'
+
+env:
+  QUERIES: '["Is gold a good investment?", "Is silver a good investment?", "Analyse my asset allocation"]'
+
+---
+- launchApp
+- runScript: ../../src/constant/Ids.mjs
+
+- evalScript: ${output.env.queries = JSON.parse(QUERIES)}
+- evalScript: ${output.env.counter = 0}
+- evalScript: ${output.env.totalQueries = output.env.queries.length}
+- evalScript: ${output.env.currentIndex = 0}
+
+- repeat:
+    while:
+      true: ${output.env.currentIndex < output.env.totalQueries}
+
+    commands:
+      - evalScript: ${output.currentQuery = output.env.queries[output.env.counter]}
+
+      - tapOn:
+          id: ${output.ids.INPUT_FIELDS.CHAT_INPUT}
+
+      - inputText: ${output.currentQuery}
+
+      - tapOn:
+          id: ${output.ids.BUTTONS.SEND_QUERY}
+
+      - assertVisible:
+          id: 'message-response${output.env.counter}'
+          optional: true
+
+      - evalScript: ${output.env.counter++}
+      - evalScript: ${output.env.currentIndex++}
+
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.Error}

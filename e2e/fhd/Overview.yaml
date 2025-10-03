@@ -1,0 +1,57 @@
+appId: ${APP_ID}
+---
+- evalScript: ${output.env.counter++}
+
+- assertVisible:
+    id: ${output.ids.COMPONENTS.FINFIT_SCORE}
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.EQU_PERF}
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.FHD_AI_INSIGHTS}
+    optional: true
+- evalScript: ${output.env.counter++}
+
+- assertVisible:
+    id: ${output.ids.COMPONENTS.MF_PERF}
+    optional: true
+- assertVisible:
+    id: ${output.ids.COMPONENTS.STOCK_PERF}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['nominees']}
+    optional: true
+
+- assertVisible:
+    id: ${output.ids.COMPONENTS.ASSET_ALLOCATION}
+    optional: true
+
+- swipe:
+    start: 50%,80%
+    end: 50%,20%
+    duration: 800
+
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['mf_commission']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['savings_ratio']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['life_insurance']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['health_cover']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_STATUS_ID['emergency_fund']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_ID['risk_profile']}
+    optional: true
+
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.FHD_METRICS}

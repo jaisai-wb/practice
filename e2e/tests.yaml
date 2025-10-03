@@ -1,0 +1,17 @@
+env:
+  APP_ID: 'money.otto.app'
+appId: ${APP_ID}
+---
+- launchApp
+
+- runScript: ../src/constant/Ids.mjs
+
+- runFlow: Auth/login.yaml
+- runFlow: Onboarding/reset.yaml
+- runFlow: FHD/Overview.yaml
+- runFlow: FHD/Metrics.yaml
+# - runFlow: FHD/Perfs.yaml
+# - runFlow: FinPlan/finplan.yaml
+# - runFlow: FinPlan/passiveFunds.yaml
+- runFlow: Logout.yaml
+- stopApp: 'false'

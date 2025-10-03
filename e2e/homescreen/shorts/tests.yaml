@@ -1,0 +1,13 @@
+env:
+  APP_ID: 'money.otto.app'
+appId: ${APP_ID}
+---
+- launchApp
+
+- runScript: ../../../src/constant/Ids.mjs
+
+- runFlow: ../../auth/login.yaml
+- runFlow: Investment_Advisor.yaml
+- runFlow: ../../fhd/Overview.yaml
+- runFlow: ../../fhd/Metrics.yaml
+- runFlow: ../../Logout.yaml

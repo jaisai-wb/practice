@@ -1,0 +1,44 @@
+appId: ${APP_ID}
+---
+# equity perf
+- evalScript: ${output.env.PERF = output.ids.COMPONENTS.EQU_PERF}
+- evalScript: ${output.env.SCREENID = output.ids.SCREEN.EQU_PERF_SCREEN}
+- evalScript: ${output.env.AIINSIGHTS= output.ids.COMPONENTS.EQ_PERF_AI_INSIGHTS}
+- evalScript: ${output.env.counter++}
+
+- runFlow:
+    file: ../utils/Charts.yaml
+
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}
+
+# mf perf
+- evalScript: ${output.env.PERF = output.ids.COMPONENTS.MF_PERF}
+- evalScript: ${output.env.SCREENID = output.ids.SCREEN.MF_PERF_SCREEN}
+- evalScript: ${output.env.AIINSIGHTS= output.ids.COMPONENTS.MF_PERF_AI_INSIGHTS}
+- evalScript: ${output.env.counter++}
+
+- runFlow:
+    file: ../utils/Charts.yaml
+- runFlow:
+    file: MFInsights.yaml
+
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}
+
+# stock perf
+- evalScript: ${output.env.PERF = output.ids.COMPONENTS.STOCK_PERF}
+- evalScript: ${output.env.SCREENID = output.ids.SCREEN.STOCK_PERF_SCREEN}
+- evalScript: ${output.env.AIINSIGHTS= output.ids.COMPONENTS.STOCK_PERF_AI_INSIGHTS}
+- evalScript: ${output.env.counter++}
+
+- runFlow:
+    file: ../utils/Charts.yaml
+
+- runFlow:
+    file: Stock_Holdings_Insights.yaml
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}

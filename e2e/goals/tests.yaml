@@ -1,0 +1,16 @@
+env:
+  APP_ID: 'money.otto.app'
+appId: ${APP_ID}
+---
+- launchApp
+
+- runScript: ../../src/constant/Ids.mjs
+
+- runFlow:
+    file: ../auth/login.yaml
+- runFlow:
+    file: Retirement.yaml
+- runFlow:
+    file: ../Logout.yaml
+
+- stopApp: 'false'

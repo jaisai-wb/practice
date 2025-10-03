@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: ${output.ids.SCREEN.GOALS_SCREEN}
+
+- repeat:
+    while:
+      notVisible:
+        id: ${output.ids.SCREEN.CHAT_SCREEN}
+    commands:
+      - tapOn:
+          id: ${output.ids.BUTTONS.GOALS.SAVE_AND_CONTINUE}
+          optional: true

@@ -1,0 +1,40 @@
+appId: ${APP_ID}
+---
+# stock holdings
+- tapOn:
+    id: ${output.ids.BUTTONS.STOCK_HOLDINGS}
+- assertVisible:
+    id: ${output.ids.COMPONENTS.HOLDINGS_STOCKS}
+    optional: true
+
+# assert insights
+- tapOn:
+    id: ${output.ids.BUTTONS.STOCK_INSIGHTS}
+
+# underperforming stocks
+- assertVisible:
+    id: ${output.ids.STOCKPERF_INSIGHTS_EXPANDED_VIEW.UNDERPERFORMING}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.STOCKPERF_INSIGHTS.UNDERPERFORMING}
+
+# sector allocation
+- tapOn:
+    id: ${output.ids.COMPONENTS.STOCKPERF_INSIGHTS.SECTOR_ALLOCATION}
+- assertVisible:
+    id: ${output.ids.STOCKPERF_INSIGHTS_EXPANDED_VIEW.SECTOR_ALLOCATION}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.STOCKPERF_INSIGHTS.SECTOR_ALLOCATION}
+
+# market allocation cap
+- tapOn:
+    id: ${output.ids.COMPONENTS.STOCKPERF_INSIGHTS.MARKETCAP_ALLOC}
+- assertVisible:
+    id: ${output.ids.STOCKPERF_INSIGHTS_EXPANDED_VIEW.MARKETCAP_ALLOC}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.STOCKPERF_INSIGHTS.MARKETCAP_ALLOC}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}

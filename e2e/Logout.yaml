@@ -1,0 +1,20 @@
+appId: ${APPID}
+---
+- repeat:
+    while:
+      notVisible:
+        id: ${output.ids.BUTTONS.LEFT_NAV}
+    commands:
+      - tapOn:
+          id: ${output.ids.BUTTONS.BACK_BUTTON}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.LEFT_NAV}
+- tapOn:
+    id: ${output.ids.BUTTONS.PERSON_OUTLET}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.LOG_OUT}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.LOGOUT_CONFIRMATION}

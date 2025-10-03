@@ -1,0 +1,10 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: ${output.env.InputField}
+    delay: 500
+- eraseText: 20
+- inputText: ${output.env.InputText}
+- tapOn:
+    id: ${output.env.InputField}
+    delay: 500

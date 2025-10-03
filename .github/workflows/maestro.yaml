@@ -1,0 +1,146 @@
+name: Run Maestro E2E Tests 🧪
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-maestro-tests:
+    name: 'Run Android E2E Tests on Linux'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Set up Java (JDK)'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 'Free up disk space'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo apt-get clean
+          df -h
+
+      - name: 'Enable KVM'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: 'AVD cache'
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-34
+
+      - name: 'Create AVD and generate snapshot for caching'
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: 'Download APK from GitHub Release'
+        run: |
+          echo "==> Downloading app-release.apk from GitHub Release v.0.0.1..."
+          curl -L -o app-release.apk \
+            "https://github.com/jaisai-wb/practice/releases/download/v.0.0.1/app-release.apk"
+          
+          echo "==> Verifying file integrity with SHA256..."
+          EXPECTED_SHA="3629fb87470ced42069b76ea3aa351fa417b3861f3fb40fdf0188b02f2e3e85d"
+          ACTUAL_SHA=$(sha256sum app-release.apk | awk '{print $1}')
+          
+          echo "Expected SHA256: $EXPECTED_SHA"
+          echo "Actual SHA256:   $ACTUAL_SHA"
+          
+          if [ "$EXPECTED_SHA" = "$ACTUAL_SHA" ]; then
+            echo "✅ SHA256 checksum verified - file is authentic and uncorrupted"
+          else
+            echo "❌ ERROR: SHA256 mismatch! File may be corrupted or tampered with"
+            exit 1
+          fi
+          
+          echo "==> Verifying APK structure..."
+          ls -lh app-release.apk
+          file app-release.apk
+          
+          if unzip -l app-release.apk | grep -q "AndroidManifest.xml"; then
+            echo "✅ Valid APK structure confirmed ($(du -h app-release.apk | cut -f1))"
+          else
+            echo "❌ ERROR: Invalid APK file"
+            exit 1
+          fi
+
+      - name: 'Install Maestro CLI'
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: 'Run Maestro E2E Tests'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            set -e
+            
+            echo "==> Waiting for device to be ready..."
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
+            
+            echo "==> Device is ready, waiting 10 more seconds for stability..."
+            sleep 10
+            
+            echo "==> Unlocking device..."
+            adb shell input keyevent 82
+            adb shell input keyevent 4
+            
+            echo "==> Installing APK..."
+            adb install -r app-release.apk
+            
+            echo "==> Verifying Maestro installation..."
+            maestro --version
+            
+            echo "==> Running Maestro tests..."
+            maestro test --format junit --output maestro-report e2e/tests.yaml
+
+      - name: 'Upload Maestro Test Results'
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-test-results
+          path: maestro-report/
+          retention-days: 7
+
+      - name: 'Upload test results summary'
+        if: always()
+        run: |
+          if [ -d "maestro-report" ]; then
+            echo "### 🧪 Maestro Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Test execution completed. Check the artifacts for detailed results." >> $GITHUB_STEP_SUMMARY
+          fi
