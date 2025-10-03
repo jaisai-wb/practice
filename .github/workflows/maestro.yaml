@@ -63,16 +63,30 @@ jobs:
 
       - name: 'Download APK from GitHub Release'
         run: |
-          echo "==> Downloading APK from GitHub Release v.0.0.1..."
-          curl -L -o app-debug.apk \
-            "https://github.com/jaisai-wb/practice/releases/download/v.0.0.1/app-debug.apk"
+          echo "==> Downloading app-release.apk from GitHub Release v.0.0.1..."
+          curl -L -o app-release.apk \
+            "https://github.com/jaisai-wb/practice/releases/download/v.0.0.1/app-release.apk"
           
-          echo "==> Verifying APK..."
-          ls -lh app-debug.apk
-          file app-debug.apk
+          echo "==> Verifying file integrity with SHA256..."
+          EXPECTED_SHA="3629fb87470ced42069b76ea3aa351fa417b3861f3fb40fdf0188b02f2e3e85d"
+          ACTUAL_SHA=$(sha256sum app-release.apk | awk '{print $1}')
           
-          if unzip -l app-debug.apk | grep -q "AndroidManifest.xml"; then
-            echo "✅ Valid APK downloaded ($(du -h app-debug.apk | cut -f1))"
+          echo "Expected SHA256: $EXPECTED_SHA"
+          echo "Actual SHA256:   $ACTUAL_SHA"
+          
+          if [ "$EXPECTED_SHA" = "$ACTUAL_SHA" ]; then
+            echo "✅ SHA256 checksum verified - file is authentic and uncorrupted"
+          else
+            echo "❌ ERROR: SHA256 mismatch! File may be corrupted or tampered with"
+            exit 1
+          fi
+          
+          echo "==> Verifying APK structure..."
+          ls -lh app-release.apk
+          file app-release.apk
+          
+          if unzip -l app-release.apk | grep -q "AndroidManifest.xml"; then
+            echo "✅ Valid APK structure confirmed ($(du -h app-release.apk | cut -f1))"
           else
             echo "❌ ERROR: Invalid APK file"
             exit 1
@@ -106,7 +120,7 @@ jobs:
             adb shell input keyevent 4
             
             echo "==> Installing APK..."
-            adb install -r app-debug.apk
+            adb install -r app-release.apk
             
             echo "==> Verifying Maestro installation..."
             maestro --version
