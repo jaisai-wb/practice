@@ -1,0 +1,12 @@
+env:
+  APP_ID: 'money.otto.app'
+appId: ${APP_ID}
+---
+- launchApp
+
+- runScript: ../../src/constant/Ids.mjs
+
+- runFlow: Fundquery.yaml
+- runFlow:
+    file: ../Logout.yaml
+- stopApp: 'false'

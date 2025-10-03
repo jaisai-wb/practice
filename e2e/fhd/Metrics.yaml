@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: ${output.FHD_ITEM_ID['net_worth']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_ID['fds']}
+    optional: true
+- assertVisible:
+    id: ${output.FHD_ITEM_ID['monthly_sip']}
+    optional: true
+
+- tapOn:
+    id: ${output.ids.BUTTONS.FHD_OVERVIEW}
+
+- swipe:
+    start: 50%,20%
+    end: 50%,80%
+    duration: 800

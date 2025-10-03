@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+
+env:
+  TEST_PROFILE: 'Senior Executive'
+
+---
+- tapOn:
+    id: ${output.ids.BUTTONS.LEFT_NAV}
+- tapOn:
+    id: ${output.ids.BUTTONS.MANAGE_DATA}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.RESET_PROFILE}
+
+- tapOn:
+    id: ${ TEST_PROFILE }
+
+- tapOn:
+    id: ${output.ids.BUTTONS.CONTINUE_RS_TP}
+
+- extendedWaitUntil:
+    visible:
+      id: ${output.ids.SCREEN.FHD_SCREEN}
+    timeout: 40000
+    optional: true
+
+- evalScript: ${output.env.fhdCheckCount = 0}
+
+- repeat:
+    while:
+      notVisible:
+        id: ${output.ids.SCREEN.FHD_SCREEN}
+    commands:
+      - tapOn:
+          id: ${output.ids.BUTTONS.LEFT_NAV}
+      - tapOn:
+          id: ${output.ids.BUTTONS.FHD_BUTTON}
+      - extendedWaitUntil:
+          visible:
+            id: ${output.ids.SCREEN.FHD_SCREEN}
+          timeout: 8000
+          optional: true
+      - evalScript: ${output.env.fhdCheckCount++}

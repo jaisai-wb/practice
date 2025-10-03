@@ -1,0 +1,84 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: ${output.ids.BUTTONS.MF_INSIGHTS}
+
+#mf ratings
+- tapOn:
+    id: ${output.ids.COMPONENTS.MF_RATINGS}
+
+- evalScript: ${output.mfRatingRowValues = Object.values(output.ids.COMPONENTS.MF_RATING_ROW)}
+- evalScript: ${output.noOfRatings = output.mfRatingRowValues.length}
+- evalScript: ${output.mfRatingRowExpandViewValues = Object.values(output.ids.COMPONENTS.MF_RATING_ROW_EXPANDED_VIEW)}
+- evalScript: ${output.env.currentIndex = 0}
+
+- repeat:
+    while:
+      true: ${output.env.currentIndex < output.noOfRatings}
+    commands:
+      # Set current rating and expanded view IDs
+      - evalScript: ${output.env.currentRating = output.mfRatingRowValues[output.env.currentIndex]}
+      - evalScript: ${output.env.currentExpandedView = output.mfRatingRowExpandViewValues[output.env.currentIndex]}
+
+      # Assert the row is visible
+      - assertVisible:
+          id: ${output.env.currentRating}
+          optional: true
+
+      # Click on the row to expand it
+      - tapOn:
+          id: ${output.env.currentRating}
+          optional: true
+
+      # Assert the expanded view component is visible
+      - assertVisible:
+          id: ${output.env.currentExpandedView}
+          optional: true
+
+      # Close the expanded view
+      - tapOn:
+          id: ${output.env.currentRating}
+          optional: true
+
+      # Increment counter
+      - evalScript: ${output.env.currentIndex++}
+
+- tapOn:
+    id: ${output.ids.COMPONENTS.MF_RATINGS}
+
+# underperforming funds
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.UNDERPERFORMING_FUNDS}
+- assertVisible:
+    id: ${output.ids.MFPERF_INSIGHTS_EXPANDED_VIEW.UNDERPERFORMING_FUNDS}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.UNDERPERFORMING_FUNDS}
+
+# sector allocation
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.SECTOR_ALLOCATION}
+- assertVisible:
+    id: ${output.ids.MFPERF_INSIGHTS_EXPANDED_VIEW.SECTOR_ALLOCATION}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.SECTOR_ALLOCATION}
+
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.MARKETCAP_ALLOC}
+- assertVisible:
+    id: ${output.ids.MFPERF_INSIGHTS_EXPANDED_VIEW.MARKETCAP_ALLOC}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.MARKETCAP_ALLOC}
+
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.TOPHOLDINGS}
+- assertVisible:
+    id: ${output.ids.MFPERF_INSIGHTS_EXPANDED_VIEW.TOPHOLDINGS}
+    optional: true
+- tapOn:
+    id: ${output.ids.COMPONENTS.MFPERF_INSIGHTS.TOPHOLDINGS}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.BACK_BUTTON}

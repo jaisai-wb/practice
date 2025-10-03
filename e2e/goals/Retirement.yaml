@@ -1,0 +1,58 @@
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: ${output.ids.SCREEN.HOME_SCREEN}
+
+- evalScript: ${output.currentQuery='add my retirement goal'}
+- tapOn:
+    id: ${output.ids.INPUT_FIELDS.CHAT_INPUT}
+- inputText: ${output.currentQuery}
+- tapOn:
+    id: ${output.ids.BUTTONS.SEND_QUERY}
+- evalScript: ${output.env.counter++}
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.CURRENT_AGE}
+- evalScript: ${output.env.InputText='25'}
+- runFlow:
+    file: inputHelper.yaml
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.RETIREMENT_YEAR}
+- evalScript: ${output.env.InputText='2045'}
+- runFlow:
+    file: inputHelper.yaml
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.CURRENT_MON_EXPENSE}
+- evalScript: ${output.env.InputText='125000'}
+- runFlow:
+    file: inputHelper.yaml
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.RETIREMENT_EXPENSES}
+- evalScript: ${output.env.InputText='66.75'}
+- runFlow:
+    file: inputHelper.yaml
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.INFLATION}
+- evalScript: ${output.env.InputText='10.25'}
+- runFlow:
+    file: inputHelper.yaml
+
+- evalScript: ${output.env.InputField=output.ids.INPUT_FIELDS.GOALS.RETIREMENT.LIFE_EXPECTANCY}
+- evalScript: ${output.env.InputText='75'}
+- runFlow:
+    file: inputHelper.yaml
+
+- scroll
+
+- tapOn:
+    id: ${output.ids.BUTTONS.GOALS.SAVE_AND_CONTINUE}
+
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.ASSET_ALLOCATION}
+- assertVisible:
+    id: ${output.ids.COMPONENTS.CHAT_COMPONENTS.EQUITY_BREAKUP}
+
+- scroll
+- tapOn:
+    id: ${output.ids.COMPONENTS.MESSAGE_RESPONSE}${output.env.counter}
+    optional: true
+- evalScript: ${output.env.counter++}

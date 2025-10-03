@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: ${output.ids.COMPONENTS.HOME_SCREEN_SHORTS}2
+- repeat:
+    while:
+      notVisible:
+        id: ${output.ids.BUTTONS.SHORTS_CTA_BUTTON}
+    commands:
+      - tapOn:
+          id: ${output.ids.SCREEN.SHORTS_SCREEN}
+
+- tapOn:
+    id: ${output.ids.BUTTONS.SHORTS_CTA_BUTTON}
+
+- evalScript: ${output.env.counter++}
