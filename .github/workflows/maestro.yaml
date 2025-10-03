@@ -7,6 +7,9 @@ on:
     branches: ['main']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   run-maestro-tests:
     name: 'Run Android E2E Tests on Linux'
@@ -58,12 +61,22 @@ jobs:
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
 
-      - name: 'Download APK from Google Drive'
+      - name: 'Download APK from GitHub Release'
         run: |
-          FILE_ID="1_WzYrLukIzyyKUtJrQSVxGCemU1UHWgk"
-          FILE_NAME="app-debug.apk"
-          curl -L "https://drive.google.com/uc?export=download&id=${FILE_ID}" -o "$FILE_NAME"
-          ls -lh "$FILE_NAME"
+          echo "==> Downloading APK from GitHub Release v.0.0.1..."
+          curl -L -o app-debug.apk \
+            "https://github.com/jaisai-wb/practice/releases/download/v.0.0.1/app-debug.apk"
+          
+          echo "==> Verifying APK..."
+          ls -lh app-debug.apk
+          file app-debug.apk
+          
+          if unzip -l app-debug.apk | grep -q "AndroidManifest.xml"; then
+            echo "✅ Valid APK downloaded ($(du -h app-debug.apk | cut -f1))"
+          else
+            echo "❌ ERROR: Invalid APK file"
+            exit 1
+          fi
 
       - name: 'Install Maestro CLI'
         run: |
